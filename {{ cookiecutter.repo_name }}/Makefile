@@ -16,6 +16,13 @@ else
 HAS_CONDA=True
 endif
 
+ifeq (,$(shell which pyenv))
+HAS_PYENV=False
+else
+HAS_PYENV=True
+PYENV_PYTHON_VERSION=3.7.4
+endif
+
 #################################################################################
 # COMMANDS                                                                      #
 #################################################################################
@@ -64,12 +71,10 @@ else
 	conda create --name $(PROJECT_NAME) python=2.7
 endif
 		@echo ">>> New conda env created. Activate with:\nsource activate $(PROJECT_NAME)"
-else
-	$(PYTHON_INTERPRETER) -m pip install -q virtualenv virtualenvwrapper
-	@echo ">>> Installing virtualenvwrapper if not already installed.\nMake sure the following lines are in shell startup file\n\
-	export WORKON_HOME=$$HOME/.virtualenvs\nexport PROJECT_HOME=$$HOME/Devel\nsource /usr/local/bin/virtualenvwrapper.sh\n"
-	@bash -c "source `which virtualenvwrapper.sh`;mkvirtualenv $(PROJECT_NAME) --python=$(PYTHON_INTERPRETER)"
-	@echo ">>> New virtualenv created. Activate with:\nworkon $(PROJECT_NAME)"
+else ifeq (True,$(HAS_PYENV))
+	@echo ">>> Setup virtualenv with pyenv."
+	pyenv virtualenv $(PYENV_PYTHON_VERSION) $(PROJECT_NAME)
+	@echo ">>> New virtualenv created. Activate with:\npyenv activate $(PROJECT_NAME)"
 endif
 
 ## Test python environment is setup correctly
