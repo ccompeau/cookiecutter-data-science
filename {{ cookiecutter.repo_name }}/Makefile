@@ -81,6 +81,25 @@ endif
 test_environment:
 	$(PYTHON_INTERPRETER) test_environment.py
 
+## Run all git config
+repo: git_local git_remote
+
+## Initiate git locally
+git_local:
+	@if [ -d ".git" ]; then \
+		echo "git is already initiated" && exit 1; \
+	else \
+		git init .; \
+	fi
+
+## Create a Github repo
+git_remote:
+	@if [ -d ".git" ]; then \
+		curl -H "Authorization: token $$GITHUB_TOKEN" --data '{"owner": "$$GITHUB_TOKEN_OWNER", "name":"$(PROJECT_NAME)", "private":true}' https://api.github.com/user/repos; \
+		git remote add $$GITHUB_TOKEN_OWNER git@github.com:$$GITHUB_TOKEN_OWNER/$(PROJECT_NAME).git; \
+	else \
+		echo "git is not yet initiated on this project" && exit 1; \
+	fi
 #################################################################################
 # PROJECT RULES                                                                 #
 #################################################################################
